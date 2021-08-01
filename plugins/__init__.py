@@ -1,7 +1,17 @@
 import logging
+import glob
+import parse
 
 def get_plugins_after_plugin(plugin, plugins):
 	return plugins[plugins.index(plugin)+1:]
+
+
+def filecount_for_dir(search_format, directory):
+	try:
+		count = max([x[0] for x in [parse.parse(search_format, os.path.basename(x)) for x in glob.glob(directory+"*")] if x])
+	except ValueError as e:
+		return 0
+
 
 class Plugin(object):
 	NAME = "GenricPlugin"
@@ -47,7 +57,7 @@ class Plugin(object):
 	def process_video(self, file_path):
 		return False
 
-	def onkeypress(self):
+	def onkeypress(self, key):
 		pass
 
 	def quit(self):
