@@ -4,6 +4,8 @@ import cv2
 import time
 import glob, parse
 
+from pathlib import Path
+
 class PluginManualCapture(Plugin):
 	NAME = "ManualCapture"
 	def __init__(self, directory, file_format, key, name=NAME):
@@ -17,7 +19,11 @@ class PluginManualCapture(Plugin):
 		self.tlast = 0
 
 		self.frame = None
-		
+
+	def setup(self, plugins=[], size=(0,0), capture=None, capture_dir=""):
+		Plugin.setup(self, plugins=plugins, size=size, capture=capture, capture_dir=capture_dir)
+		Path(self.directory).mkdir(parents=True, exist_ok=True)
+
 	@property
 	def frame_counter(self):
 		return self.counter

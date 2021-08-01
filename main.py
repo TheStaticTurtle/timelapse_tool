@@ -1,5 +1,6 @@
 from plugins.monitor import PluginMonitor
 from plugins.timelapse import PluginTimelapse
+from plugins.manual_capture import PluginManualCapture
 
 import logging
 import time
@@ -20,6 +21,7 @@ FILE_OUTPUT_FORCED_FORMAT = "forced{:05d}.jpg"
 PLUGINS = [
 	PluginMonitor(),
 	PluginTimelapse(FILE_OUTPUT_DIR, FILE_OUTPUT_FORMAT, INTERVAL),
+	PluginManualCapture(FILE_OUTPUT_DIR, FILE_OUTPUT_FORCED_FORMAT, ord('s'))
 ]
 
 

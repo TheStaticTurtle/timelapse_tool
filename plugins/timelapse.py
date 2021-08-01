@@ -3,6 +3,8 @@ from datetime import datetime
 import cv2
 import time
 
+from pathlib import Path
+
 class PluginTimelapse(Plugin):
 	NAME = "Timelapse"
 	def __init__(self, directory, file_format, interval, name=NAME):
@@ -14,6 +16,10 @@ class PluginTimelapse(Plugin):
 
 		self.counter = filecount_for_dir(file_format, directory)
 		self.tlast = 0
+
+	def setup(self, plugins=[], size=(0,0), capture=None, capture_dir=""):
+		Plugin.setup(self, plugins=plugins, size=size, capture=capture, capture_dir=capture_dir)
+		Path(self.directory).mkdir(parents=True, exist_ok=True)
 
 	@property
 	def frame_counter(self):
