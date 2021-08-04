@@ -1,4 +1,4 @@
-from . import Plugin, get_plugins_after_plugin, filecount_for_dir
+from . import Plugin, get_plugins_before_plugin, filecount_for_dir
 from datetime import datetime
 import cv2
 import time
@@ -32,7 +32,7 @@ class PluginManualCapture(Plugin):
 	# 	self.frame = img_processed
 
 	def process(self, img):
-		self.frame = img
+		self.frame = img.copy()
 		return img
 
 	def onkeypress(self, key):
@@ -41,7 +41,7 @@ class PluginManualCapture(Plugin):
 
 			cv2.imwrite(self.directory + self.file_format.format(self.counter), self.frame)
 		
-			for plugin in get_plugins_after_plugin(self, self.plugins):
+			for plugin in get_plugins_before_plugin(self, self.plugins):
 				plugin.process_photo(self.directory + self.file_format.format(self.counter))
 			
 			self.counter += 1

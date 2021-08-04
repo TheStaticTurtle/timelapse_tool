@@ -1,4 +1,4 @@
-from . import Plugin, get_plugins_after_plugin, filecount_for_dir
+from . import Plugin, get_plugins_before_plugin, filecount_for_dir
 from datetime import datetime
 import cv2
 import time
@@ -27,8 +27,7 @@ class PluginTimelapse(Plugin):
 		return self.counter
 
 	def process(self, img):
-		self.log.debug("here")
-		self.frame = img
+		self.frame = img.copy()
 		return img
 
 	def write_file(self, img_monitor, img_processed, img):
@@ -37,7 +36,7 @@ class PluginTimelapse(Plugin):
 
 			cv2.imwrite(self.directory + self.file_format.format(self.counter), self.frame)
 		
-			for plugin in get_plugins_after_plugin(self, self.plugins):
+			for plugin in get_plugins_before_plugin(self, self.plugins):
 				plugin.process_photo(self.directory + self.file_format.format(self.counter))
 			
 			self.counter += 1

@@ -3,10 +3,12 @@ from plugins.timelapse import PluginTimelapse
 from plugins.manual_capture import PluginManualCapture
 
 # from plugins.effects.roadmap import PluginEffectRoadmap
+from plugins.gps import PluginGPS_TCP
 
 import logging
 import time
 import cv2
+import numpy as np
 
 ###### CONFIG ######
 
@@ -22,6 +24,7 @@ FILE_OUTPUT_FORMAT = "shot{:05d}.jpg"
 FILE_OUTPUT_FORCED_FORMAT = "forced{:05d}.jpg"
 
 PLUGINS = [
+	PluginGPS_TCP("192.168.1.15", 6000),
 	PluginTimelapse(FILE_OUTPUT_DIR, FILE_OUTPUT_FORMAT, INTERVAL),
 	PluginManualCapture(FILE_OUTPUT_DIR, FILE_OUTPUT_FORCED_FORMAT, ord('s')),
 	
@@ -58,11 +61,11 @@ while True:
 	ret,frame = capture.read()
 
 	frame_processed = frame
-	frame_monitor = frame#cv2.resize(frame, (1280,720))
+	frame_monitor = cv2.resize(frame, (1280,720))
 
 	for plugin in PLUGINS:
-		frame_processed = plugin.process(frame_processed.copy())
-		frame_monitor = plugin.process_monitor(frame_monitor.copy())
+		frame_processed = plugin.process(frame_processed)
+		frame_monitor = plugin.process_monitor(frame_monitor)
 
 	for plugin in PLUGINS:
 		plugin.monitor(frame_monitor, frame_processed, frame)
