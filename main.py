@@ -2,26 +2,39 @@ from plugins.monitor import PluginMonitor
 from plugins.timelapse import PluginTimelapse
 from plugins.manual_capture import PluginManualCapture
 
+# from plugins.effects.roadmap import PluginEffectRoadmap
+
 import logging
 import time
 import cv2
+
+###### CONFIG ######
 
 CAMERA_INDEX = 1
 CAMERA_HEIGHT = 1080
 CAMERA_WIDTH = 1920
 
-###### CONFIG ######
-
 INTERVAL = 10
 
 FILE_OUTPUT_DIR = "D:/StillsTEST/"
 FILE_OUTPUT_FORMAT = "shot{:05d}.jpg"
+# FILE_OUTPUT_MAP_FORMAT = "mapshot{:05d}.jpg"
 FILE_OUTPUT_FORCED_FORMAT = "forced{:05d}.jpg"
 
 PLUGINS = [
-	PluginMonitor(),
 	PluginTimelapse(FILE_OUTPUT_DIR, FILE_OUTPUT_FORMAT, INTERVAL),
-	PluginManualCapture(FILE_OUTPUT_DIR, FILE_OUTPUT_FORCED_FORMAT, ord('s'))
+	PluginManualCapture(FILE_OUTPUT_DIR, FILE_OUTPUT_FORCED_FORMAT, ord('s')),
+	
+	# PluginEffectRoadmap(
+	# 	[(47.966671, 7.4), "Oberhergheim"],
+	# 	[(43.2487, 3.2923), "Valras-Plage"],
+	# 	7,
+	# 	INTERVAL,
+	# 	map_padding = [1,1,1,0],
+	# 	map_crop=[175, 0],
+	# ),
+	PluginMonitor(),
+	# PluginTimelapse(FILE_OUTPUT_DIR, FILE_OUTPUT_MAP_FORMAT, INTERVAL),
 ]
 
 
@@ -45,12 +58,11 @@ while True:
 	ret,frame = capture.read()
 
 	frame_processed = frame
-	frame_monitor = cv2.resize(frame, (1280,720))
+	frame_monitor = frame#cv2.resize(frame, (1280,720))
 
 	for plugin in PLUGINS:
-		if plugin.modify_original:
-			frame_processed = plugin.process(frame_processed)
-		frame_monitor = plugin.process_monitor(frame_monitor)
+		frame_processed = plugin.process(frame_processed.copy())
+		frame_monitor = plugin.process_monitor(frame_monitor.copy())
 
 	for plugin in PLUGINS:
 		plugin.monitor(frame_monitor, frame_processed, frame)

@@ -28,8 +28,12 @@ class PluginManualCapture(Plugin):
 	def frame_counter(self):
 		return self.counter
 
-	def write_file(self, img_monitor, img_processed, img):
-		self.frame = img_processed
+	# def write_file(self, img_monitor, img_processed, img):
+	# 	self.frame = img_processed
+
+	def process(self, img):
+		self.frame = img
+		return img
 
 	def onkeypress(self, key):
 		if key == self.key:

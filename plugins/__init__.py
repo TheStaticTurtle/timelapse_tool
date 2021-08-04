@@ -1,6 +1,9 @@
 import logging
 import glob
 import parse
+import os
+
+__all__ = ["effects"]
 
 def get_plugins_after_plugin(plugin, plugins):
 	return plugins[plugins.index(plugin)+1:]
@@ -9,6 +12,7 @@ def get_plugins_after_plugin(plugin, plugins):
 def filecount_for_dir(search_format, directory):
 	try:
 		count = max([x[0] for x in [parse.parse(search_format, os.path.basename(x)) for x in glob.glob(directory+"*")] if x])
+		return count
 	except ValueError as e:
 		return 0
 
@@ -26,12 +30,12 @@ class Plugin(object):
 		self.log = logging.getLogger(name)
 
 	@property
-	def modify_original(self):
-		return False
+	def frame_counter(self):
+		return None
 
 	@property
-	def frame_counter(self):
-		return 0
+	def gps(self):
+		return None
 
 	def setup(self, plugins=[], size=(0,0), capture=None, capture_dir=""):
 		self.size = size
