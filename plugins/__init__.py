@@ -32,6 +32,7 @@ class Plugin(object):
 		self.plugins = []
 		self.capture_dir = ""
 		self.log = logging.getLogger(name)
+		self._working = True
 
 	@property
 	def frame_counter(self):
@@ -41,6 +42,10 @@ class Plugin(object):
 	def gps(self):
 		return None
 
+	@property
+	def working(self):
+		return self._working
+	
 	def setup(self, plugins=[], size=(0,0), capture=None, capture_dir=""):
 		self.size = size
 		self.plugins = plugins
@@ -59,7 +64,7 @@ class Plugin(object):
 	def write_file(self, img_monitor, img_processed, img):
 		pass
 
-	def process_photo(self, file_path):
+	def process_photo(self, file_path, description=None):
 		return False
 
 	def process_video(self, file_path):

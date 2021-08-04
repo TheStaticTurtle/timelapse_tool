@@ -5,6 +5,8 @@ import time
 import socket
 import io
 import pynmea2
+import math
+import exif
 
 class PluginGPS(Plugin):
 	NAME = "GenericGPSPlugin"
@@ -25,7 +27,44 @@ class PluginGPS(Plugin):
 	@property
 	def sec_since_last_update(self):
 		return time.time() - self._last_update
-	
+
+	@property
+	def working(self):
+		return self.sec_since_last_update < 5
+
+	@staticmethod
+	def deg_to_dms(deg, type='lat'):
+		decimals, number = math.modf(deg)
+		d = int(number)
+		m = int(decimals * 60)
+		s = (deg - d - m / 60) * 3600.00
+		compass = {
+			'lat': ('N','S'),
+			'lon': ('E','W')
+		}
+		compass_str = compass[type][0 if d >= 0 else 1]
+		return ((abs(d), abs(m), abs(s)), compass_str)
+
+	def process_photo(self, file_path, description=None):
+		with open(file_path, 'rb') as image_file:
+			img = exif.Image(image_file)
+
+		lat = PluginGPS.deg_to_dms(self._gps[0], type="lat")
+		lon = PluginGPS.deg_to_dms(self._gps[1], type="lon")
+
+		img.gps_latitude = lat[0]
+		img.gps_latitude_ref = lat[1]
+		img.gps_longitude = lon[0]
+		img.gps_longitude_ref = lon[1]
+		img.gps_altitude = self.altitude
+		if description:
+			img.description = description
+
+		with open(file_path, 'wb') as updated_image_file:
+		    updated_image_file.write(img.get_file())
+		return True
+
+
 class PluginGPS_TCP(PluginGPS):
 	NAME = "NemaGPS_TCP"
 	def __init__(self, ip_address, port, name=NAME):
@@ -53,6 +92,8 @@ class PluginGPS_TCP(PluginGPS):
 			self.sock.setblocking(0)
 			self.sockfile = self.sock.makefile()
 		except ConnectionRefusedError as e:
+			print(e)
+		except TimeoutError as e:
 			print(e)
 
 	def process(self, _):

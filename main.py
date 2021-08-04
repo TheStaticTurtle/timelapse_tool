@@ -1,9 +1,10 @@
 from plugins.monitor import PluginMonitor
 from plugins.timelapse import PluginTimelapse
 from plugins.manual_capture import PluginManualCapture
+from plugins.video_recorder import PluginVideoCapture
+from plugins.gps import PluginGPS_TCP
 
 # from plugins.effects.roadmap import PluginEffectRoadmap
-from plugins.gps import PluginGPS_TCP
 
 import logging
 import time
@@ -22,11 +23,13 @@ FILE_OUTPUT_DIR = "D:/StillsTEST/"
 FILE_OUTPUT_FORMAT = "shot{:05d}.jpg"
 # FILE_OUTPUT_MAP_FORMAT = "mapshot{:05d}.jpg"
 FILE_OUTPUT_FORCED_FORMAT = "forced{:05d}.jpg"
+FILE_OUTPUT_VIDEO_FORMAT = "record{:05d}.avi"
 
 PLUGINS = [
 	PluginGPS_TCP("192.168.1.15", 6000),
 	PluginTimelapse(FILE_OUTPUT_DIR, FILE_OUTPUT_FORMAT, INTERVAL),
 	PluginManualCapture(FILE_OUTPUT_DIR, FILE_OUTPUT_FORCED_FORMAT, ord('s')),
+	PluginVideoCapture(FILE_OUTPUT_DIR, FILE_OUTPUT_VIDEO_FORMAT, ord('r')),
 	
 	# PluginEffectRoadmap(
 	# 	[(47.966671, 7.4), "Oberhergheim"],
@@ -49,9 +52,6 @@ log.info("Hellow world")
 capture = cv2.VideoCapture(CAMERA_INDEX)
 capture.set(3,CAMERA_WIDTH)
 capture.set(4,CAMERA_HEIGHT)
-
-#fourcc = cv2.cv.CV_FOURCC(*'XVID')  # cv2.VideoWriter_fourcc() does not exist
-#video_writer = cv2.VideoWriter("output.avi", fourcc, 20, (680, 480))
 
 log.info("Running pluging setups")
 for plugin in PLUGINS:
