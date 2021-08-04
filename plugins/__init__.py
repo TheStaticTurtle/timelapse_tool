@@ -8,6 +8,9 @@ __all__ = ["effects"]
 def get_plugins_after_plugin(plugin, plugins):
 	return plugins[plugins.index(plugin)+1:]
 
+def get_plugins_before_plugin(plugin, plugins):
+	return plugins[:plugins.index(plugin)]
+
 
 def filecount_for_dir(search_format, directory):
 	try:
@@ -23,6 +26,7 @@ class Plugin(object):
 	"""docstring for Plugin"""
 	def __init__(self,name=NAME):
 		super(Plugin, self).__init__()
+		self.name= name
 		self.size = (0,0)
 		self.capture = None
 		self.plugins = []
