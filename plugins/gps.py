@@ -10,8 +10,9 @@ import exif
 
 class PluginGPS(Plugin):
 	NAME = "GenericGPSPlugin"
-	def __init__(self, name=NAME):
+	def __init__(self, name=NAME, reconnect_if_disconnect=True):
 		Plugin.__init__(self,name=name)
+		self.reconnect_if_disconnect= reconnect_if_disconnect
 		self._altitude = 0
 		self._gps = (0, 0)
 		self._last_update = 0
@@ -67,8 +68,8 @@ class PluginGPS(Plugin):
 
 class PluginGPS_TCP(PluginGPS):
 	NAME = "NemaGPS_TCP"
-	def __init__(self, ip_address, port, name=NAME):
-		PluginGPS.__init__(self,name=name)
+	def __init__(self, ip_address, port, name=NAME, reconnect_if_disconnect=True):
+		PluginGPS.__init__(self,name=name,reconnect_if_disconnect=reconnect_if_disconnect)
 		self.ip_address = ip_address
 		self.port = port
 		self.sock = None
@@ -76,12 +77,16 @@ class PluginGPS_TCP(PluginGPS):
 		self.recreate_socket()
 		self.tlastsockupdate = 0
 
-	def recreate_socket(self):
+	def close_socket(self):
 		if self.sock:
 			self.sock.close()
-		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.sock = None
 		self.sockfile = None
 
+	def recreate_socket(self):
+		self.close_socket()
+		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		
 	def setup(self, plugins=[], size=(0,0), capture=None, capture_dir=""):
 		Plugin.setup(self, plugins=plugins, size=size, capture=capture, capture_dir=capture_dir)
 		self.resetup_socket()
@@ -91,36 +96,46 @@ class PluginGPS_TCP(PluginGPS):
 			self.sock.connect((self.ip_address, self.port))
 			self.sock.setblocking(0)
 			self.sockfile = self.sock.makefile()
+			self.log.info("Socket reconnected")
 		except ConnectionRefusedError as e:
-			print(e)
+			self.log.error(e)
 		except TimeoutError as e:
-			print(e)
+			self.log.error(e)
 
 	def process(self, _):
 		if self.tlastsockupdate + 15 < time.time():
 			try:
 				self.sock.send(b"TEST")
 			except Exception as e:
-				self.recreate_socket()
-				self.resetup_socket()
-				self.tlastsockupdate = time.time()
-			
+				self.log.error("Socket disconnected, reconnect enabled: %r" % (self.reconnect_if_disconnect))
+				if self.reconnect_if_disconnect:
+					self.log.info("Trying to reconnect")
+					self.recreate_socket()
+					self.resetup_socket()
+					self.tlastsockupdate = time.time()
+				else:
+					self.tlastsockupdate = time.time() * 4 #Hacky way to diable the check
+
 		if self.sockfile:
-			line = self.sockfile.readline()
-			if line:
-				try:
-					msg = pynmea2.parse(line)
-					# self.log.debug("%r"%msg)
-					if "GGA" in str(type(msg)):
-						self._gps = (msg.latitude, msg.longitude)
-						self._last_update = time.time()
-						self._altitude = msg.altitude
-						self.log.info("GPS Update: latitude=%f longitude=%f" % (msg.latitude, msg.longitude))
-				except pynmea2.nmea.SentenceTypeError as e:
-					pass
-				except pynmea2.nmea.ParseError as e:
-					pass
+			try:
+				line = self.sockfile.readline()
+				if line:
+					try:
+						msg = pynmea2.parse(line)
+						# self.log.debug("%r"%msg)
+						if "GGA" in str(type(msg)):
+							self._gps = (msg.latitude, msg.longitude)
+							self._last_update = time.time()
+							self._altitude = msg.altitude
+							self.log.info("GPS Update: latitude=%f longitude=%f" % (msg.latitude, msg.longitude))
+					except pynmea2.nmea.SentenceTypeError as e:
+						pass
+					except pynmea2.nmea.ParseError as e:
+						pass
+			except ConnectionResetError as e:
+				self.close_socket()
+				self.log.error("Socket disconnected: %r" % (e))
 		return _
 
 	def quit(self):
-		self.sock.close()
+		self.close_socket()

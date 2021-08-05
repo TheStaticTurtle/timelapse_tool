@@ -37,7 +37,7 @@ FILE_OUTPUT_FORCED_FORMAT = "forced{:05d}.jpg"
 FILE_OUTPUT_VIDEO_FORMAT = "record{:05d}.avi"
 
 PLUGINS = [
-	PluginGPS_TCP("192.168.1.15", 6000),
+	PluginGPS_TCP("192.168.1.15", 6000, reconnect_if_disconnect=False),
 	PluginTimelapse(FILE_OUTPUT_DIR, FILE_OUTPUT_FORMAT, INTERVAL),
 	PluginManualCapture(FILE_OUTPUT_DIR, FILE_OUTPUT_FORCED_FORMAT, ord('s')),
 	PluginVideoCapture(FILE_OUTPUT_DIR, FILE_OUTPUT_VIDEO_FORMAT, ord('r')),
