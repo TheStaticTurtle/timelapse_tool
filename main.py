@@ -16,7 +16,18 @@ import numpy as np
 CAMERA_INDEX = 1
 CAMERA_HEIGHT = 1080
 CAMERA_WIDTH = 1920
-
+CAMERA_SETTINGS = [
+	# (cv2.CAP_PROP_EXPOSURE, 1),
+	# (cv2.CAP_PROP_WB_TEMPERATURE, 5700),
+	# (cv2.CAP_PROP_BRIGHTNESS, 0),
+	# (cv2.CAP_PROP_CONTRAST, 35),
+	# (cv2.CAP_PROP_HUE, 5),
+	# (cv2.CAP_PROP_SHARPNESS, 2.5),
+	# (cv2.CAP_PROP_GAMMA, 110),
+	# (cv2.CAP_PROP_GAIN, 0),
+	# (cv2.CAP_PROP_AUTO_EXPOSURE, 0),
+	# (cv2.CAP_PROP_AUTO_WB, 0),
+]
 INTERVAL = 10
 
 FILE_OUTPUT_DIR = "D:/StillsTEST/"
@@ -52,6 +63,9 @@ log.info("Hellow world")
 capture = cv2.VideoCapture(CAMERA_INDEX)
 capture.set(3,CAMERA_WIDTH)
 capture.set(4,CAMERA_HEIGHT)
+
+for prop, value in CAMERA_SETTINGS:
+	capture.set(prop, value)
 
 log.info("Running pluging setups")
 for plugin in PLUGINS:
