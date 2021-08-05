@@ -64,7 +64,7 @@ class Plugin(object):
 	def write_file(self, img_monitor, img_processed, img):
 		pass
 
-	def process_photo(self, file_path, description=None):
+	def process_photo(self, file_path, image_description=None):
 		return False
 
 	def process_video(self, file_path):

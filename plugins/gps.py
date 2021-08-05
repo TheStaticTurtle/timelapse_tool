@@ -46,7 +46,7 @@ class PluginGPS(Plugin):
 		compass_str = compass[type][0 if d >= 0 else 1]
 		return ((abs(d), abs(m), abs(s)), compass_str)
 
-	def process_photo(self, file_path, description=None):
+	def process_photo(self, file_path, image_description=None):
 		with open(file_path, 'rb') as image_file:
 			img = exif.Image(image_file)
 
@@ -58,8 +58,8 @@ class PluginGPS(Plugin):
 		img.gps_longitude = lon[0]
 		img.gps_longitude_ref = lon[1]
 		img.gps_altitude = self.altitude
-		if description:
-			img.description = description
+		if image_description:
+			img.image_description = image_description
 
 		with open(file_path, 'wb') as updated_image_file:
 		    updated_image_file.write(img.get_file())

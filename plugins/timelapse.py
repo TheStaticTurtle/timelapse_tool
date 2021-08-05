@@ -37,7 +37,7 @@ class PluginTimelapse(Plugin):
 			cv2.imwrite(self.directory + self.file_format.format(self.counter), self.frame)
 		
 			for plugin in get_plugins_before_plugin(self, self.plugins):
-				plugin.process_photo(self.directory + self.file_format.format(self.counter), description="%s: Frame number %d" % (self.name, self.frame_counter))
+				plugin.process_photo(self.directory + self.file_format.format(self.counter), image_description="%s: Frame number %d" % (self.name, self.frame_counter))
 			
 			self.counter += 1
 			self.tlast = time.time()

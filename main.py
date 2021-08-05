@@ -3,6 +3,7 @@ from plugins.timelapse import PluginTimelapse
 from plugins.manual_capture import PluginManualCapture
 from plugins.video_recorder import PluginVideoCapture
 from plugins.gps import PluginGPS_TCP
+from plugins.exif import PluginEXIFTool
 
 # from plugins.effects.roadmap import PluginEffectRoadmap
 
@@ -10,6 +11,7 @@ import logging
 import time
 import cv2
 import numpy as np
+import datetime
 
 ###### CONFIG ######
 
@@ -38,6 +40,11 @@ FILE_OUTPUT_VIDEO_FORMAT = "record{:05d}.avi"
 
 PLUGINS = [
 	PluginGPS_TCP("192.168.1.15", 6000, reconnect_if_disconnect=False),
+	PluginEXIFTool(
+		copyright="Samuel TUGLER - 2021", 
+		image_description_prepend="Valras-Plage, vacance 2021, timelapse plage",
+		model="IMX317"
+	),
 	PluginTimelapse(FILE_OUTPUT_DIR, FILE_OUTPUT_FORMAT, INTERVAL),
 	PluginManualCapture(FILE_OUTPUT_DIR, FILE_OUTPUT_FORCED_FORMAT, ord('s')),
 	PluginVideoCapture(FILE_OUTPUT_DIR, FILE_OUTPUT_VIDEO_FORMAT, ord('r')),
